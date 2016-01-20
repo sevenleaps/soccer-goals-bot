@@ -6,7 +6,7 @@ build:
           # use the scratch step to build a container from scratch based on the files present
       - internal/docker-push:
           username: $DOCKER_HUB_USERNAME
-          password: $DOCKER_PASSWORD
+          password: $DOCKER_HUB_PASSWORD
           cmd: /pipeline/source/node_modules/forever/bin/forever /pipeline/source/app.js
           tag: $DOCKER_IMAGE_TAG
           repository: $DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME
@@ -27,7 +27,7 @@ deploy:
     - script:
         name: stop login pull start
         code: |
-          ssh -i $PRIVATEKEY_PATH -l root  $HOSTNAME docker login -e $DOCKER_EMAIL -p $DOCKER_PASSWORD -u $DOCKER_HUB_USERNAME
+          ssh -i $PRIVATEKEY_PATH -l root  $HOSTNAME docker login -e $DOCKER_EMAIL -p $DOCKER_HUB_PASSWORD -u $DOCKER_HUB_USERNAME
           ssh -i $PRIVATEKEY_PATH -l root  $HOSTNAME docker pull $DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
           ssh -i $PRIVATEKEY_PATH -l root  $HOSTNAME "docker ps -a | grep -q '$DOCKER_IMAGE_TAG' && docker rm -f $DOCKER_IMAGE_TAG || echo \"$DOCKER_IMAGE_TAG not running\" "
           ssh -i $PRIVATEKEY_PATH -l root  $HOSTNAME docker run -d -e \"BOT_TOKEN=$BOT_TOKEN\" -e \"CHANNEL_NAME=$CHANNEL_NAME\" -e \"FIRE_BASE_ROOT=$FIRE_BASE_ROOT\" -e \"FIRE_BASE_APP=$FIRE_BASE_APP\" --name $DOCKER_IMAGE_TAG $DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG

@@ -2,12 +2,12 @@ var assert = require('assert');
 var TelegramBot = require('node-telegram-bot-api');
 var request = require('request');
 var CronJob = require('cron').CronJob;
-var Q = require("q");
 var Firebase = require("firebase");
 
 var england = require('./england.js');
 var germany = require('./germany.js');
 var common = require('./common.js');
+var BotGA = require('./bot_google_analytics');
 
 process.on('uncaughtException', function(err) {
   console.error(err);
@@ -113,6 +113,7 @@ new CronJob('0 */1 * * * *', function() {
 
 bot.onText(/\/channels/, function(msg, match){
   console.log('/channels');
+  BotGA.logBotEvent('channels');
   var messageText = getChannelsMessageText();
   bot.sendMessage(msg.chat.id, messageText, {
     parse_mode: 'Markdown'
@@ -120,11 +121,13 @@ bot.onText(/\/channels/, function(msg, match){
 });
 
 bot.onText(/\/goals[ ]?(.*)/, function(msg, match){
+  BotGA.logBotEvent('goals');
   common.handleGoalsMessage(msg, england.getCompetitionGoals(), '/goals', match);
 });
 
 bot.onText(/\/help/, function (msg) {
   console.log('/help');
+  BotGA.logBotEvent('help');
   bot.sendMessage(msg.chat.id, getUseage(), {
     parse_mode: 'Markdown'
   });
@@ -132,11 +135,13 @@ bot.onText(/\/help/, function (msg) {
 
 bot.onText(/\/start/, function (msg) {
   console.log('/start');
+  BotGA.logBotEvent('start');
   bot.sendMessage(msg.chat.id, getUseage(), {
     parse_mode: 'Markdown'
   });
 });
 
 bot.onText(/\/tore[ ]?(.*)/, function(msg, match){
+  BotGA.logBotEvent('tore');
   common.handleGoalsMessage(msg, germany.getCompetitionGoals(), '/tore', match);
 });

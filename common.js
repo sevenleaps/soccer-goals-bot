@@ -9,6 +9,7 @@ var myFirebaseRef;
 var bot;
 
 var moment = require('moment');
+var Q = require("q");
 
 function setBot(theBot){
   bot = theBot;
@@ -25,9 +26,7 @@ function handleGoalsMessage(msg, goals, command, match){
   if(match && match.length > 0 && match[1] !== "")
   {
     var timePeriod = match[1];
-    console.log(timePeriod);
     var filteredGoals = getGoalsForTimePeriod(goals, timePeriod);
-    console.log(filteredGoals);
     displayGoals(chatId, filteredGoals);
   }
   else {

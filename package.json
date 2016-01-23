@@ -25,6 +25,7 @@
     "memory-cache": "0.1.4",
     "q":"1.0.0",
     "firebase":"2.3.2",
-    "cron": "1.0.0"
+    "cron": "1.0.0",
+    "universal-analytics": "0.3.10"
   }
 }

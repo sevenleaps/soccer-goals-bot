@@ -18,14 +18,16 @@ function setFireBaseRef(firebaseRef){
   myFirebaseRef = firebaseRef;
 }
 
-function handleGoalsMessage(msg, goals, command){
+function handleGoalsMessage(msg, goals, command, match){
 
   var chatId = msg.chat.id;
 
   if(match && match.length > 0 && match[1] !== "")
   {
     var timePeriod = match[1];
+    console.log(timePeriod);
     var filteredGoals = getGoalsForTimePeriod(goals, timePeriod);
+    console.log(filteredGoals);
     displayGoals(chatId, filteredGoals);
   }
   else {
@@ -127,7 +129,7 @@ function storeGoal(goal, competition, competitionGoals, channel){
 
     if(channel)
     {
-      bot.sendMessage(channel, goal.title + " " + goal.url);
+      bot.sendMessage("@" + channel, goal.title + " " + goal.url);
     }
   }
 }

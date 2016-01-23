@@ -2,6 +2,7 @@ module.exports = exports = {
     checkRedditForGoals: checkRedditForGoals,
     getCompetitionName: getCompetitionName,
     setCompetitionGoals: setCompetitionGoals,
+    getCompetitionGoals: getCompetitionGoals,
     setChannelName: setChannelName
 };
 
@@ -23,6 +24,10 @@ function setChannelName(channel){
 
 function setCompetitionGoals(goals){
   competitionGoals = goals;
+}
+
+function getCompetitionGoals(){
+  return competitionGoals;
 }
 
 function checkRedditForGoals(storeGoalFunction)

@@ -8,7 +8,7 @@ A telegram bot that parses goals from Reddit. Written in node.js
 
 * Connects to reddit and looks on goals for the Premier League and the Bundesliga. 
 * Users can talk to the bot and request goals since today,yesterday or the last week 
-* The bot will post the goals as it finds them to following two public channels: [PremierLeague](https://telegram.me/bplGoals) [Bundesliga](https://telegram.me/bundesligaGoals) 
+* The bot will post the goals as it finds them to following two public channels: [PremierLeague](https://telegram.me/bplGoals) & [Bundesliga](https://telegram.me/bundesligaGoals) 
 
 Feel free to add a pull request if you want to add another league!
 

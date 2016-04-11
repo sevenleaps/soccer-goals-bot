@@ -23,6 +23,9 @@ var BPLTEAMS = [
   "EVERTON",
   "LEICESTER",
   "LIVERPOOL",
+  "MAN UTD",
+  "MAN UNITED",
+  "MAN CITY",
   "MANCHESTER",
   "NEWCASTLE",
   "NORWICH",
@@ -31,6 +34,7 @@ var BPLTEAMS = [
   "SUNDERLAND",
   "SWANSEA",
   "TOTTENHAM",
+  "SPURS",
   "WATFORD",
   "WEST BROM",
   "WEST HAM"

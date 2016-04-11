@@ -32,7 +32,7 @@ function getCompetitionGoals(){
 
 function checkRedditForGoals(storeGoalFunction)
 {
-  reddit.r('bundesliga').sort('new').from("week").limit("100", function(err, data, res){
+  reddit.r('bundesliga').new().limit("100", function(err, data, res){
   data.data.children.forEach(function (child){
     var linkData = child.data;
     var re = /\d+\-\d+/;

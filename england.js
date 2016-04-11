@@ -58,7 +58,7 @@ function getCompetitionGoals(){
 
 function checkRedditForGoals(storeGoalFunction)
 {
-  reddit.r('soccer').sort('new').from("week").limit("100", function(err, data, res){
+  reddit.r('soccer').new().limit("100", function(err, data, res){
   data.data.children.forEach(function (child){
     var linkData = child.data;
     if(linkData.link_flair_text == "Media") {

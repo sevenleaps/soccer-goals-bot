@@ -14,18 +14,21 @@
   "author": "Brian Lough",
   "license": "ISC",
   "dependencies": {
+    "bluebird": "^3.4.6",
+    "bluebird-retry": "^0.8.0",
+    "cron": "1.0.0",
     "express": "4.13.3",
+    "firebase": "2.3.2",
     "forever": "0.15.1",
     "jsonfile": "2.2.3",
+    "memory-cache": "0.1.4",
     "moment": "2.10.6",
     "node-telegram-bot-api": "0.19.0",
-    "request": "2.67.0",
+    "q": "1.0.0",
     "redwrap": "0.0.4",
+    "request": "2.67.0",
+    "superagent": "^2.3.0",
     "sync-request": "2.1.0",
-    "memory-cache": "0.1.4",
-    "q":"1.0.0",
-    "firebase":"2.3.2",
-    "cron": "1.0.0",
     "universal-analytics": "0.3.10"
   }
 }

@@ -9,7 +9,9 @@ var myFirebaseRef;
 var bot;
 
 var moment = require('moment');
-var Q = require("q");
+var Promise = require("bluebird");
+
+var Streamable = require('./streamable.js');
 
 function setBot(theBot){
   bot = theBot;
@@ -19,7 +21,7 @@ function setFireBaseRef(firebaseRef){
   myFirebaseRef = firebaseRef;
 }
 
-function handleGoalsMessage(msg, goals, command, match){
+function handleGoalsMessage(msg, goals, command, match, channel){
 
   var chatId = msg.chat.id;
 
@@ -27,7 +29,7 @@ function handleGoalsMessage(msg, goals, command, match){
   {
     var timePeriod = match[1];
     var filteredGoals = getGoalsForTimePeriod(goals, timePeriod);
-    displayGoals(chatId, filteredGoals);
+    displayGoals(chatId, filteredGoals, channel);
   }
   else {
     var kb = {
@@ -83,15 +85,36 @@ function getGoalsForTimePeriod(competitionGoals, timePeriod) {
   return goals;
 }
 
-function displayGoals(chatId, goals)
+var uploadGoalToStreamable = goal => new Promise((resolve, reject) => {
+  Streamable.importVideoFromUrl(goal.url, goal.title)
+  .then(resp => {
+    return Streamable.waitForReadyStatus(resp.shortcode);
+  }, reject)
+  .then(video => {
+    goal.url = video.url;
+    resolve(goal);
+  }, reject)
+  .catch(reject);
+});
+
+
+function displayGoals(chatId, goals, channel)
 {
   var hasGoals = goals.length > 0;
   if (hasGoals) {
-    var promise = Q();
+    var promise;
 
     goals.forEach(function(goal){
-        promise = promise.then(function(){ return bot.sendMessage(chatId, goal.title + " " + goal.url); }); // or .bind
+        if(promise){
+          promise = promise.then(function(){ return bot.sendMessage(chatId, goal.title + " " + goal.url); }); // or .bind
+        }
+        else {
+          promise = bot.sendMessage(chatId, goal.title + " " + goal.url);
+        }
     });
+    console.log(channel);
+    console.log(promise);
+    promise.then(function(){ return bot.sendMessage(chatId, 'To get notified of the goals as they happen please subscribe to @' + channel + '\n To make it easier to maintain, we will be shorlty shutting down this bot. \n @sevenleaps');})
   } else {
     bot.sendMessage(chatId, "Didn't find any goals for this time period.");
   }
@@ -100,12 +123,12 @@ function displayGoals(chatId, goals)
 function storeGoal(goal, competition, competitionGoals, channel){
   var newGoal = false;
   var goalDate = convertTimeStampToDateString(goal.timestamp);
-
-  if(!competitionGoals || !competitionGoals.goals)
+  if(!competitionGoals ){
+    competitionGoals = {};
+  }
+  if(!competitionGoals.goals)
   {
-    competitionGoals = {
-      goals : {}
-    };
+    competitionGoals['goals'] = {};
   }
 
   if(!competitionGoals.goals[goalDate])
@@ -119,16 +142,29 @@ function storeGoal(goal, competition, competitionGoals, channel){
   }
 
   if(newGoal){
-    if(myFirebaseRef){
-      var dateRef = myFirebaseRef.child(competition).child("goals").child(goalDate);
 
-      var goalRef = dateRef.child(goal.id);
-      goalRef.set(goal);
-    }
+    uploadGoalToStreamable(goal)
+    .then(streamableGoal => {
+      console.log('Uploaded goal to sreamable: ' + goal.title);
+      writeToFirebaseAndSendToChannel(streamableGoal, channel, competition, goalDate);
+    })
+    .catch(() => {
+      console.log('Failed to upload goal to sreamable: ' + goal.title);
+      writeToFirebaseAndSendToChannel(goal, channel, competition, goalDate);
+    });
+  }
+}
 
-    if(channel)
-    {
-      bot.sendMessage("@" + channel, goal.title + " " + goal.url);
-    }
+var writeToFirebaseAndSendToChannel = (goal, channel, competition, goalDate) => {
+  if(myFirebaseRef){
+    var dateRef = myFirebaseRef.child(competition).child("goals").child(goalDate);
+
+    var goalRef = dateRef.child(goal.id);
+    goalRef.set(goal);
+  }
+
+  if(channel)
+  {
+    bot.sendMessage("@" + channel, goal.title + " " + goal.url);
   }
 }

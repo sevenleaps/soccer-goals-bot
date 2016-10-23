@@ -122,7 +122,7 @@ bot.onText(/\/channels/, function(msg, match){
 
 bot.onText(/\/goals[ ]?(.*)/, function(msg, match){
   BotGA.logBotEvent('goals');
-  common.handleGoalsMessage(msg, england.getCompetitionGoals(), '/goals', match);
+  common.handleGoalsMessage(msg, england.getCompetitionGoals(), '/goals', match, BPL_CHANNEL_NAME);
 });
 
 bot.onText(/\/help/, function (msg) {
@@ -143,5 +143,5 @@ bot.onText(/\/start/, function (msg) {
 
 bot.onText(/\/tore[ ]?(.*)/, function(msg, match){
   BotGA.logBotEvent('tore');
-  common.handleGoalsMessage(msg, germany.getCompetitionGoals(), '/tore', match);
+  common.handleGoalsMessage(msg, germany.getCompetitionGoals(), '/tore', match, BUND_CHANNEL_NAME);
 });

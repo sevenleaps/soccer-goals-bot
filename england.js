@@ -62,7 +62,7 @@ function checkRedditForGoals(storeGoalFunction)
   data.data.children.forEach(function (child){
     var linkData = child.data;
     if(linkData.link_flair_text == "Media") {
-      var re = /\d+\-\d+/;
+      var re = /\d+\]?\-\[?\d+/;
       if(re.test(linkData.title))
       {
         if(checkForBplTeam(linkData.title)){

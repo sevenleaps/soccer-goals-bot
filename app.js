@@ -6,6 +6,7 @@ var Firebase = require("firebase");
 
 var england = require('./england.js');
 var germany = require('./germany.js');
+var wc2018 = require('./worldcup18.js');
 var common = require('./common.js');
 var BotGA = require('./bot_google_analytics');
 
@@ -18,6 +19,7 @@ var FIRE_BASE_APP = process.env.FIRE_BASE_APP;
 var FIRE_BASE_ROOT = process.env.FIRE_BASE_ROOT;
 var BPL_CHANNEL_NAME = process.env.BPL_CHANNEL_NAME;
 var BUND_CHANNEL_NAME = process.env.BUND_CHANNEL_NAME;
+var WC_CHANNEL_NAME = process.env.WC_CHANNEL_NAME;
 
 var myFirebaseRef;
 if(FIRE_BASE_APP && FIRE_BASE_ROOT){
@@ -36,6 +38,7 @@ common.setBot(bot);
 common.setFireBaseRef(myFirebaseRef);
 england.setChannelName(BPL_CHANNEL_NAME);
 germany.setChannelName(BUND_CHANNEL_NAME);
+wc2018.setChannelName(WC_CHANNEL_NAME);
 
 function readFireBaseToLocal()
 {
@@ -53,6 +56,9 @@ function readFireBaseToLocal()
           }
           else if(key == germany.getCompetitionName()){
             germany.setCompetitionGoals(goals[key]);
+          } 
+          else if(key == wc2018.getCompetitionName()){
+            wc2018.setCompetitionGoals(goals[key]);
           }
         });
       }
@@ -84,6 +90,11 @@ function getChannelsMessageText() {
     messageText = messageText + '- [Bundesliga](' + getChannelLink(BUND_CHANNEL_NAME) + ')\n';
   }
 
+  if(WC_CHANNEL_NAME)
+  {
+    messageText = messageText + '- [World cup 2018](' + getChannelLink(WC_CHANNEL_NAME) + ')\n';
+  }
+
   //Remove last line break
   messageText = messageText.slice(0, -1);
 
@@ -109,6 +120,7 @@ new CronJob('0 */1 * * * *', function() {
   console.log('Going to reddit to look for new goals');
   england.checkRedditForGoals(common.storeGoal);
   germany.checkRedditForGoals(common.storeGoal);
+  wc2018.checkRedditForGoals(common.storeGoal);
 }, null, true, null);
 
 bot.onText(/\/channels/, function(msg, match){

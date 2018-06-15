@@ -10,7 +10,7 @@ build:
           cmd: /pipeline/source/node_modules/forever/bin/forever /pipeline/source/app.js
           tag: $DOCKER_IMAGE_TAG
           repository: $DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME
-          registry: https://registry.hub.docker.com
+          registry: https://registry.hub.docker.com/v2
 
 deploy:
     steps:

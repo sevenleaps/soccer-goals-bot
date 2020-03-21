@@ -14,6 +14,7 @@ process.on('uncaughtException', function(err) {
   console.error(err);
 });
 
+
 var BOT_TOKEN = process.env.BOT_TOKEN;
 var FIRE_BASE_APP = process.env.FIRE_BASE_APP;
 var FIRE_BASE_ROOT = process.env.FIRE_BASE_ROOT;

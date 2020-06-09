@@ -16,15 +16,13 @@ var channelName;
 
 var BPLTEAMS = [
   "ARSENAL",
+  "ASTON VILLA",
   "BOURNEMOUTH",
   "BRIGHTON",
-  "BURNLEY",
-  "CARDIFF CITY",
+  "BURNLEY",  
   "CHELSEA",
   "CRYSTAL PALACE",
   "EVERTON",
-  "FULHAM",
-  "HUDDERSFIELD",
   "LEICESTER",
   "LIVERPOOL",
   "MAN UTD",
@@ -32,13 +30,15 @@ var BPLTEAMS = [
   "MAN CITY",
   "MANCHESTER",
   "NEWCASTLE",
+  "NORWICH",
+  "SHEFFIELD UNITED",
   "SOUTHAMPTON",
   "TOTTENHAM",
   "SPURS",
   "WATFORD",
   "WOLVES",
-  "WOLVERHAMPTON WANDERERS",
-  "WEST HAM"
+  "WEST HAM",
+  "WOLVERHAMPTON WANDERERS"
 ];
 
 function getCompetitionName(){

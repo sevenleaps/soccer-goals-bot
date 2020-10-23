@@ -2,3 +2,4 @@ node_modules
 .Ds_store
 .idea/*
 .idea
+*.log

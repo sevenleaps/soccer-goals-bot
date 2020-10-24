@@ -1,28 +1,23 @@
-module.exports = exports = {
-    checkRedditForGoals: checkRedditForGoals,
-    getCompetitionName: getCompetitionName,
-    setCompetitionGoals: setCompetitionGoals,
-    getCompetitionGoals: getCompetitionGoals,
-    setChannelName: setChannelName
-};
-
-var reddit = require('redwrap');
+const reddit = require('redwrap')
 
 var competitionGoals = {};
 
-var COMPETITION = "PREMIER_LEAGUE";
+const COMPETITION = "PREMIER_LEAGUE";
 
-var channelName;
+var chatId;
 
-var BPLTEAMS = [
+const BPL_TEAMS = [
   "ARSENAL",
   "ASTON VILLA",
-  "BOURNEMOUTH",
+  "AVL",
   "BRIGHTON",
   "BURNLEY",  
   "CHELSEA",
   "CRYSTAL PALACE",
   "EVERTON",
+  "FULHAM",
+  "LEEDS",
+  "LEE",
   "LEICESTER",
   "LIVERPOOL",
   "MAN UTD",
@@ -30,14 +25,15 @@ var BPLTEAMS = [
   "MAN CITY",
   "MANCHESTER",
   "NEWCASTLE",
-  "NORWICH",
   "SHEFFIELD UNITED",
   "SOUTHAMPTON",
   "TOTTENHAM",
   "SPURS",
-  "WATFORD",
-  "WOLVES",
+  "WEST BROM",
+  "WEST BROMWICH ALBION",
   "WEST HAM",
+  "WEST HAM UNITED",
+  "WOLVES",
   "WOLVERHAMPTON WANDERERS"
 ];
 
@@ -45,8 +41,8 @@ function getCompetitionName(){
   return COMPETITION;
 }
 
-function setChannelName(channel){
-  channelName = channel;
+function setChatId(id){
+  chatId = id;
 }
 
 function setCompetitionGoals(goals){
@@ -57,38 +53,41 @@ function getCompetitionGoals(){
   return competitionGoals;
 }
 
-function checkRedditForGoals(storeGoalFunction)
-{
+function checkRedditForGoals(storeGoal) {
   reddit.r('soccer').new().limit("100", function(err, data, res){
   data.data.children.forEach(function (child){
     var linkData = child.data;
     if(linkData.link_flair_text == "Media") {
-      var re = /\d+\]?\-\[?\d+/;
-      if(re.test(linkData.title))
-      {
+
+      // 0-1
+      // 0]-[2
+      // 3 - 2
+      // 2] - [0
+      const re = /\d+\]?\ ?\-\ ?\[?\d+/
+      if(re.test(linkData.title)) {
         if(checkForBplTeam(linkData.title)){
 
           var goal = { id : linkData.id,
                       title : linkData.title,
                       url : linkData.url,
-                      timestamp : linkData.created_utc};
-          storeGoalFunction(goal, COMPETITION, competitionGoals, channelName);
+                      timestamp : linkData.created_utc}
+
+          storeGoal(goal, COMPETITION, competitionGoals, chatId)
         }
       }
     }
-  });
-});
+  })
+})
 }
 
 function checkForBplTeam(linkText){
-  var bplTeam = false;
-  BPLTEAMS.forEach(function (team){
-    if(linkText.toUpperCase().indexOf(team) > 0)
-    {
-      bplTeam = true;
-      return;
-    }
-  });
+  return BPL_TEAMS.some((team) => linkText.toUpperCase().indexOf(team) > 0)
+}
 
-  return bplTeam;
+module.exports = exports = {
+  checkRedditForGoals: checkRedditForGoals,
+  getCompetitionName: getCompetitionName,
+  setCompetitionGoals: setCompetitionGoals,
+  getCompetitionGoals: getCompetitionGoals,
+  setChatId: setChatId
 }

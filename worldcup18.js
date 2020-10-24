@@ -3,7 +3,7 @@ module.exports = exports = {
     getCompetitionName: getCompetitionName,
     setCompetitionGoals: setCompetitionGoals,
     getCompetitionGoals: getCompetitionGoals,
-    setChannelName: setChannelName
+    setChatId: setChatId
 };
 
 var reddit = require('redwrap');
@@ -12,7 +12,7 @@ var competitionGoals = {};
 
 var COMPETITION = "WORLD_CUP_18";
 
-var channelName;
+var chatId;
 
 var WC_TEAMS = [
   "Argentina",
@@ -53,8 +53,8 @@ function getCompetitionName(){
   return COMPETITION;
 }
 
-function setChannelName(channel){
-  channelName = channel;
+function setChatId(id){
+  chatId = id
 }
 
 function setCompetitionGoals(goals){
@@ -65,31 +65,31 @@ function getCompetitionGoals(){
   return competitionGoals;
 }
 
-function checkRedditForGoals(storeGoalFunction)
-{
-  reddit.r('soccer').new().limit("100", function(err, data, res){
-  data.data.children.forEach(function (child){
-    var linkData = child.data;
-    if(linkData.link_flair_text == "Media") {
-      var re = /\d+\]?\-\[?\d+/;
-      if(re.test(linkData.title))
-      {
-        if(checkForTeam(linkData.title)){
+function checkRedditForGoals(storeGoalFunction) {
+  reddit.r('soccer').new().limit("100", (err, data, res) => {
+    data.data.children.forEach((child) => {
+      const linkData = child.data;
+      if(linkData.link_flair_text == "Media") {
+      // 0-1
+      // 0]-[2
+      // 3 - 2
+      // 2] - [0
+      const re = /\d+\]?\ ?\-\ ?\[?\d+/
+        if(re.test(linkData.title)){
+          if(checkForTeam(linkData.title)){
 
-          var goal = { id : linkData.id,
-                      title : linkData.title,
-                      url : linkData.url,
-                      timestamp : linkData.created_utc};
-          storeGoalFunction(goal, COMPETITION, competitionGoals, channelName);
+            var goal = { id : linkData.id,
+                        title : linkData.title,
+                        url : linkData.url,
+                        timestamp : linkData.created_utc};
+            storeGoalFunction(goal, COMPETITION, competitionGoals, chatId)
+          }
         }
       }
-    }
-  });
-});
+    })
+  })
 }
 
 function checkForTeam(linkText){
-  return WC_TEAMS.some(function (team) {
-    return (linkText.toUpperCase().indexOf(team.toUpperCase()) > 0)
-  });
+  return WC_TEAMS.some((team) => linkText.toUpperCase().indexOf(team.toUpperCase()) > 0)
 }

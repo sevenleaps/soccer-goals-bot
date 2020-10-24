@@ -1,11 +1,4 @@
-module.exports = exports = {
-    handleGoalsMessage: handleGoalsMessage,
-    storeGoal: storeGoal,
-    setFireBaseRef: setFireBaseRef,
-    setBot: setBot
-};
-
-var myFirebaseRef;
+var database;
 var bot;
 
 var moment = require('moment');
@@ -17,75 +10,15 @@ function setBot(theBot){
   bot = theBot;
 }
 
-function setFireBaseRef(firebaseRef){
-  myFirebaseRef = firebaseRef;
+function setDatabase(db){
+  database = db;
 }
 
-function handleGoalsMessage(msg, goals, command, match, channel){
-
-  var chatId = msg.chat.id;
-
-  if(match && match.length > 0 && match[1] !== "")
-  {
-    var timePeriod = match[1];
-    var filteredGoals = getGoalsForTimePeriod(goals, timePeriod);
-    displayGoals(chatId, filteredGoals, channel);
-  }
-  else {
-    var kb = {
-        keyboard: [
-            [command + ' today'],
-            [command + ' yesterday'],
-            [command + ' week']
-        ],
-        one_time_keyboard: true,
-        selective : true
-    };
-    bot.sendMessage(chatId, "When do you want the goals from?", {reply_markup :kb,
-                                                                  reply_to_message_id: msg.message_id
-                                                                });
-  }
+function toDateString(timestamp) {
+  return moment(timestamp, "X").format("YY-MM-DD");
 }
 
-function convertTimeStampToDateString(timestamp)
-{
-  var date = moment(timestamp, "X");
-  return date.format("YY-MM-DD");
-}
-
-function convertTimePeriodToDates(timePeriod) {
-  var days = [0];
-  if ( timePeriod === 'yesterday') {
-    days = [1];
-  } else if (timePeriod === 'week') {
-    days = [0,1,2,3,4,5,6];
-  }
-  return days.map(function formatDate(daysAgo) {
-    return moment().subtract(daysAgo, 'days').format("YY-MM-DD");
-  });
-}
-
-function getGoalsForTimePeriod(competitionGoals, timePeriod) {
-  var dates = convertTimePeriodToDates(timePeriod);
-  var goals = [];
-
-  dates.forEach(function populateGoals(date) {
-    var hasGoalsForDate = competitionGoals.goals && competitionGoals.goals[date];
-    if (hasGoalsForDate) {
-      goals.push.apply(goals, Object.keys(competitionGoals.goals[date]).map(function (goalKey) {
-        return competitionGoals.goals[date][goalKey];
-      }));
-    }
-  });
-  // sort goals by date
-  goals = goals.sort(function sortGoals(goala, goalb){
-    return goala.timestamp - goalb.timestamp;
-  });
-
-  return goals;
-}
-
-var uploadGoalToStreamable = goal => new Promise((resolve, reject) => {
+const uploadToStreamable = goal => new Promise((resolve, reject) => {
   Streamable.importVideoFromUrl(goal.url, goal.title)
   .then(resp => {
     return Streamable.waitForReadyStatus(resp.shortcode);
@@ -95,76 +28,43 @@ var uploadGoalToStreamable = goal => new Promise((resolve, reject) => {
     resolve(goal);
   }, reject)
   .catch(reject);
-});
-
-
-function displayGoals(chatId, goals, channel)
-{
-  var hasGoals = goals.length > 0;
-  if (hasGoals) {
-    var promise;
-
-    goals.forEach(function(goal){
-        if(promise){
-          promise = promise.then(function(){ return bot.sendMessage(chatId, goal.title + " " + goal.url); }); // or .bind
-        }
-        else {
-          promise = bot.sendMessage(chatId, goal.title + " " + goal.url);
-        }
-    });
-    console.log(channel);
-    console.log(promise);
-    promise.then(function(){ return bot.sendMessage(chatId, 'To get notified of the goals as they happen please subscribe to @' + channel + '\n To make it easier to maintain, we will be shorlty shutting down this bot. \n @sevenleaps');})
-  } else {
-    bot.sendMessage(chatId, "Didn't find any goals for this time period.");
-  }
-}
+})
 
 function storeGoal(goal, competition, competitionGoals, channel){
-  var newGoal = false;
-  var goalDate = convertTimeStampToDateString(goal.timestamp);
-  if(!competitionGoals ){
+  const goalDate = toDateString(goal.timestamp);
+  if (!competitionGoals ) {
     competitionGoals = {};
   }
-  if(!competitionGoals.goals)
-  {
+  if (!competitionGoals.goals) {
     competitionGoals['goals'] = {};
   }
 
-  if(!competitionGoals.goals[goalDate])
-  {
+  if (!competitionGoals.goals[goalDate]) {
     competitionGoals.goals[goalDate] = {};
   }
 
-  if(!competitionGoals.goals[goalDate][goal.id]){
-    competitionGoals.goals[goalDate][goal.id] = goal;
-    newGoal = true;
-  }
+  if (!competitionGoals.goals[goalDate][goal.id]) {
+    competitionGoals.goals[goalDate][goal.id] = goal
 
-  if(newGoal){
-
-    uploadGoalToStreamable(goal)
+    uploadToStreamable(goal)
     .then(streamableGoal => {
-      console.log('Uploaded goal to sreamable: ' + goal.title);
-      writeToFirebaseAndSendToChannel(streamableGoal, channel, competition, goalDate);
+      console.log('Uploaded goal to streamable: ' + goal.title)
+      writeToFirebaseAndSendToChannel(streamableGoal, channel, competition, goalDate)
     })
     .catch(() => {
-      console.log('Failed to upload goal to sreamable: ' + goal.title);
-      writeToFirebaseAndSendToChannel(goal, channel, competition, goalDate);
-    });
+      console.log('Failed to upload goal to streamable: ' + goal.title)
+      writeToFirebaseAndSendToChannel(goal, channel, competition, goalDate)
+    })
   }
 }
 
 var writeToFirebaseAndSendToChannel = (goal, channel, competition, goalDate) => {
-  if(myFirebaseRef){
-    var dateRef = myFirebaseRef.child(competition).child("goals").child(goalDate);
-
-    var goalRef = dateRef.child(goal.id);
-    goalRef.set(goal);
-  }
-
-  if(channel)
-  {
-    bot.sendMessage("@" + channel, goal.title + " " + goal.url);
-  }
+  database.storeGoal(goal, competition, goalDate)
+  bot.sendMessage(channel, goal.title + " " + goal.url);
 }
+
+module.exports = exports = {
+  storeGoal: storeGoal,
+  setDatabase: setDatabase,
+  setBot: setBot
+};

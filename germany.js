@@ -3,7 +3,7 @@ module.exports = exports = {
     getCompetitionName: getCompetitionName,
     setCompetitionGoals: setCompetitionGoals,
     getCompetitionGoals: getCompetitionGoals,
-    setChannelName: setChannelName
+    setChatId: setChatId
 };
 
 var reddit = require('redwrap');
@@ -12,14 +12,14 @@ var competitionGoals = {};
 
 var COMPETITION = "BUNDESLIGA";
 
-var channelName;
+var chatId
 
 function getCompetitionName(){
   return COMPETITION;
 }
 
-function setChannelName(channel){
-  channelName = channel;
+function setChatId(id){
+  chatId = id
 }
 
 function setCompetitionGoals(goals){
@@ -41,7 +41,7 @@ function checkRedditForGoals(storeGoalFunction)
       storeGoalFunction({ id : linkData.id,
                   title : linkData.title,
                   url : linkData.url,
-                  timestamp : linkData.created_utc}, COMPETITION, competitionGoals, channelName);
+                  timestamp : linkData.created_utc}, COMPETITION, competitionGoals, chatId)
     }
   });
 });

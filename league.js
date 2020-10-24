@@ -1,12 +1,11 @@
-const reddit = require('redwrap')
-
 class League {
-  constructor (teams, competition, chatId, subReddit, goals) {
+  constructor (teams, competition, chatId, subReddit, goals, redditService) {
     this.teams = teams
     this.competition = competition
     this.chatId = chatId
     this.subReddit = subReddit
     this.goals = goals
+    this.redditService = redditService
   }
 
   setGoals (goals) {
@@ -19,34 +18,10 @@ class League {
 
   checkRedditForGoals (storeGoal) {
     const self = this
-    reddit.r(self.subReddit).new().limit('100', function (err, data, res) {
-      if (err) {
-        console.log(err)
-      }
-      data.data.children.forEach(function (child) {
-        var linkData = child.data
-        if (linkData.link_flair_text === 'Media') {
-          // 0-1
-          // 0]-[2
-          // 3 - 2
-          // 2] - [0
-          const re = /\d+]? ?- ?\[?\d+/
-          if (re.test(linkData.title)) {
-            if (self.isTeamPresent(linkData.title)) {
-              const goal = {
-                id: linkData.id,
-                title: linkData.title,
-                url: linkData.url,
-                redditLink: `https://www.reddit.com${linkData.permalink}`,
-                timestamp: linkData.created_utc
-              }
-
-              storeGoal(goal, self.competition, self.goals, self.chatId)
-            }
-          }
-        }
-      })
-    })
+    self.redditService.retriveGoals(
+      self.subReddit,
+      self.teams,
+      goals => goals.forEach(goal => storeGoal(goal, self.competition, self.goals, self.chatId)))
   }
 }
 

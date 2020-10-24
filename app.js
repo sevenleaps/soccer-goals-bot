@@ -3,6 +3,7 @@ const TelegramBot = require('node-telegram-bot-api')
 const CronJob = require('cron').CronJob
 const Database = require('./database.js').Database
 const League = require('./league.js').League
+const Reddit = require('./reddit.js').Reddit
 const germany = require('./germany.js')
 const common = require('./common.js')
 
@@ -30,6 +31,7 @@ const database = new Database({
 })
 
 const bot = new TelegramBot(BOT_TOKEN, { polling: true })
+const redditService = new Reddit()
 
 common.setBot(bot)
 common.setDatabase(database)
@@ -63,7 +65,7 @@ const england = new League([
   'WEST HAM UNITED',
   'WOLVES',
   'WOLVERHAMPTON WANDERERS'
-], 'PREMIER_LEAGUE', BPL_CHAT_ID, 'soccer', {})
+], 'PREMIER_LEAGUE', BPL_CHAT_ID, 'soccer', {}, redditService)
 
 const worldCup2018 = new League([
   'Argentina',
@@ -98,7 +100,7 @@ const worldCup2018 = new League([
   'Switzerland',
   'Tunisia',
   'Uruguay'
-], 'WORLD_CUP_18', WC_CHAT_ID, 'soccer', {})
+], 'WORLD_CUP_18', WC_CHAT_ID, 'soccer', {}, redditService)
 
 function cacheGoals (goals) {
   Object.keys(goals).forEach((competition) => {

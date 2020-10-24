@@ -117,10 +117,11 @@ function cacheGoals (goals) {
 
 database.syncGoalsCache(cacheGoals)
 
-const cron = new CronJob('0 */1 * * * *', () => {
+const fetchJob = new CronJob('0 */1 * * * *', () => {
   console.log('Going to reddit to look for new goals')
   england.checkRedditForGoals(common.storeGoal)
   // germany.checkRedditForGoals(common.storeGoal)
   // worldCup2018.checkRedditForGoals(common.storeGoal)
-}, null, true, null)
-console.log(cron === true)
+}, null, false, 'UTC')
+
+fetchJob.start()

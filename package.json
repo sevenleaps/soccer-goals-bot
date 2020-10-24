@@ -18,7 +18,6 @@
     "bluebird-retry": "^0.8.0",
     "cron": "1.0.0",
     "firebase": "7.24.0",
-    "forever": "0.15.1",
     "moment": "^2.29.1",
     "node-telegram-bot-api": "0.50.0",
     "q": "1.0.0",

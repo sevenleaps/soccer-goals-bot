@@ -60,7 +60,13 @@ function storeGoal(goal, competition, competitionGoals, channel){
 
 var writeToFirebaseAndSendToChannel = (goal, channel, competition, goalDate) => {
   database.storeGoal(goal, competition, goalDate)
-  bot.sendMessage(channel, goal.title + " " + goal.url);
+
+  const message = `*${goal.title}*
+  [reddit comments](${goal.redditLink})
+  ${goal.url}
+  `
+  
+  bot.sendMessage(channel, message, {parse_mode : "Markdown"});
 }
 
 module.exports = exports = {

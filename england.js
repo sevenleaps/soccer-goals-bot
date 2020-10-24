@@ -64,12 +64,13 @@ function checkRedditForGoals(storeGoal) {
       // 3 - 2
       // 2] - [0
       const re = /\d+\]?\ ?\-\ ?\[?\d+/
-      if(re.test(linkData.title)) {
-        if(checkForBplTeam(linkData.title)){
+      if (re.test(linkData.title)) {
+        if (checkForBplTeam(linkData.title)){
 
           var goal = { id : linkData.id,
                       title : linkData.title,
                       url : linkData.url,
+                      redditLink: `https://www.reddit.com${linkData.permalink}`,
                       timestamp : linkData.created_utc}
 
           storeGoal(goal, COMPETITION, competitionGoals, chatId)

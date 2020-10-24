@@ -16,7 +16,7 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: setup-build
+      - name: build-push
         run: |
           docker build . --tag sevenleap/apps:soccer-goals-bot
           docker push sevenleap/apps:soccer-goals-bot

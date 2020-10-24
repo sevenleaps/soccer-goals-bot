@@ -2,9 +2,8 @@ const assert = require('assert')
 const TelegramBot = require('node-telegram-bot-api')
 const CronJob = require('cron').CronJob
 const Database = require('./database.js').Database
-const england = require('./england.js')
+const League = require('./league.js').League
 const germany = require('./germany.js')
-const wc2018 = require('./worldcup18.js')
 const common = require('./common.js')
 
 process.on('uncaughtException', (err) => console.error(err))
@@ -34,19 +33,82 @@ const bot = new TelegramBot(BOT_TOKEN, { polling: true })
 
 common.setBot(bot)
 common.setDatabase(database)
-england.setChatId(BPL_CHAT_ID)
-germany.setChatId(BUND_CHAT_ID)
-wc2018.setChatId(WC_CHAT_ID)
+
+const england = new League([
+  'ARSENAL',
+  'ASTON VILLA',
+  'AVL',
+  'BRIGHTON',
+  'BURNLEY',
+  'CHELSEA',
+  'CRYSTAL PALACE',
+  'EVERTON',
+  'FULHAM',
+  'LEEDS',
+  'LEE',
+  'LEICESTER',
+  'LIVERPOOL',
+  'MAN UTD',
+  'MAN UNITED',
+  'MAN CITY',
+  'MANCHESTER',
+  'NEWCASTLE',
+  'SHEFFIELD UNITED',
+  'SOUTHAMPTON',
+  'TOTTENHAM',
+  'SPURS',
+  'WEST BROM',
+  'WEST BROMWICH ALBION',
+  'WEST HAM',
+  'WEST HAM UNITED',
+  'WOLVES',
+  'WOLVERHAMPTON WANDERERS'
+], 'PREMIER_LEAGUE', BPL_CHAT_ID, 'soccer', {})
+
+const worldCup2018 = new League([
+  'Argentina',
+  'Australia',
+  'Belgium',
+  'Brazil',
+  'Colombia',
+  'Costa Rica',
+  'Croatia',
+  'Denmark',
+  'Egypt',
+  'England',
+  'France',
+  'Germany',
+  'Iceland',
+  'Iran',
+  'Japan',
+  'Mexico',
+  'Morocco',
+  'Nigeria',
+  'Panama',
+  'Peru',
+  'Poland',
+  'Portugal',
+  'Russia',
+  'Saudi Arabia',
+  'Senegal',
+  'Serbia',
+  'South Korea',
+  'Spain',
+  'Sweden',
+  'Switzerland',
+  'Tunisia',
+  'Uruguay'
+], 'WORLD_CUP_18', WC_CHAT_ID, 'soccer', {})
 
 function cacheGoals (goals) {
-  Object.keys(goals).forEach((competitionName) => {
-    console.log(`Load goal cache for ${competitionName}`)
-    if (competitionName === england.getCompetitionName()) {
-      england.setCompetitionGoals(goals[competitionName])
-    } else if (competitionName === germany.getCompetitionName()) {
-      germany.setCompetitionGoals(goals[competitionName])
-    } else if (competitionName === wc2018.getCompetitionName()) {
-      wc2018.setCompetitionGoals(goals[competitionName])
+  Object.keys(goals).forEach((competition) => {
+    console.log(`Load goal cache for ${competition}`)
+    if (competition === england.competition) {
+      england.setGoals(goals[competition])
+    } else if (competition === germany.getCompetitionName()) {
+      germany.setCompetitionGoals(goals[competition])
+    } else if (competition === worldCup2018.competition) {
+      worldCup2018.setGoals(goals[competition])
     }
   })
 }
@@ -57,6 +119,6 @@ const cron = new CronJob('0 */1 * * * *', () => {
   console.log('Going to reddit to look for new goals')
   england.checkRedditForGoals(common.storeGoal)
   // germany.checkRedditForGoals(common.storeGoal)
-  // wc2018.checkRedditForGoals(common.storeGoal)
+  // worldCup2018.checkRedditForGoals(common.storeGoal)
 }, null, true, null)
 console.log(cron === true)

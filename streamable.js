@@ -1,89 +1,79 @@
-var request = require('superagent');
-var Promise = require('bluebird');
-var retry = require('bluebird-retry');
+const request = require('superagent')
+const Promise = require('bluebird')
 
-var STEAMABLE_API = 'https://api.streamable.com';
+const STEAMABLE_API = 'https://api.streamable.com'
 
-var importVideoFromUrl = (url, title) => new Promise((resolve, reject) => {
-  var requestUrl = STEAMABLE_API + '/import?url=' + url;
+const importVideoFromUrl = (url, title) => new Promise((resolve, reject) => {
+  var requestUrl = STEAMABLE_API + '/import?url=' + url
   if (title) {
-    requestUrl = requestUrl + "&title=" + title;
+    requestUrl = `${requestUrl}&title=${title}`
   }
   request
     .get(requestUrl)
     .accept('application/json')
     .end((err, res) => {
       if (err) {
-        reject(err);
+        reject(err)
       } else {
-        resolve(res.body);
+        resolve(res.body)
       }
-    });
-});
+    })
+})
 
-var getVideo = shortcode => new Promise((resolve, reject) => {
-  var requestUrl = STEAMABLE_API + '/videos/' + shortcode;
+const getVideo = shortcode => new Promise((resolve, reject) => {
+  var requestUrl = STEAMABLE_API + '/videos/' + shortcode
   request
     .get(requestUrl)
     .accept('application/json')
     .end((err, res) => {
       if (err) {
-        reject(err);
+        reject(err)
       } else {
-        resolve(res.body);
+        resolve(res.body)
       }
-    });
-});
+    })
+})
 
-var waitForReadyStatus = shortcode => new Promise((resolve, reject) => {
+const waitForReadyStatus = shortcode => new Promise((resolve, reject) => {
   retryUntilSuccessOrTimeout(shortcode, 50000, 3000)
     .then(video => {
-      if(video.status === 2){
-        resolve(video);
+      if (video.status === 2) {
+        resolve(video)
       } else {
-        reject(video);
+        reject(video)
       }
-    }
-  )
-  .catch(reject);
-});
-
-var retryUntilSuccessOrTimeout = (shortcode, timeout, delay) => {
-    var done = false;
-    function doCheck() {
-        return checkReadyStatus(shortcode).catch(function () {
-            if(!done) {
-                return Promise.delay(delay).then(doCheck)
-            }
-        })
-    }
-    return doCheck().timeout(timeout).finally(function () {
-        //In case of timeout; set done to be true to end the retry looping
-        done = true;
     })
+    .catch(reject)
+})
+
+const retryUntilSuccessOrTimeout = (shortcode, timeout, delay) => {
+  var done = false
+  function doCheck () {
+    return checkReadyStatus(shortcode).catch(function () {
+      if (!done) {
+        return Promise.delay(delay).then(doCheck)
+      }
+    })
+  }
+  return doCheck().timeout(timeout).finally(function () {
+    // In case of timeout set done to be true to end the retry looping
+    done = true
+  })
 }
 
-var checkReadyStatus = (shortcode) => new Promise((resolve, reject) => {
-  var promise = getVideo(shortcode).then(video => {
-      if(video.status === 2 || video.status === 3){
-
-        resolve(video);
-      } else {
-        reject(video);
-      }
-
+const checkReadyStatus = (shortcode) => new Promise((resolve, reject) => {
+  getVideo(shortcode).then(video => {
+    if (video.status === 2 || video.status === 3) {
+      resolve(video)
+    } else {
+      reject(video)
+    }
   })
-  .catch(reject);
-});
-
-var DELAY = 3000;
-var delay = () => new Promise ((resolve) =>
-{
-  setTimeout(resolve, DELAY);
-});
+    .catch(reject)
+})
 
 module.exports = exports = {
   waitForReadyStatus,
   importVideoFromUrl,
   getVideo
-};
+}

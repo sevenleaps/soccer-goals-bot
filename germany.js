@@ -30,18 +30,22 @@ function getCompetitionGoals(){
   return competitionGoals;
 }
 
-function checkRedditForGoals(storeGoalFunction)
+function checkRedditForGoals(storeGoal)
 {
   reddit.r('bundesliga').new().limit("100", function(err, data, res){
   data.data.children.forEach(function (child){
     var linkData = child.data;
     var re = /\d+\-\d+/;
+
     if(re.test(linkData.title))
     {
-      storeGoalFunction({ id : linkData.id,
-                  title : linkData.title,
-                  url : linkData.url,
-                  timestamp : linkData.created_utc}, COMPETITION, competitionGoals, chatId)
+      const goal = { id : linkData.id,
+        title : linkData.title,
+        url : linkData.url,
+        redditLink: `https://www.reddit.com${linkData.permalink}`,
+        timestamp : linkData.created_utc}
+
+      storeGoal(goal, COMPETITION, competitionGoals, chatId)
     }
   });
 });

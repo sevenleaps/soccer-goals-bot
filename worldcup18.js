@@ -78,10 +78,12 @@ function checkRedditForGoals(storeGoalFunction) {
         if(re.test(linkData.title)){
           if(checkForTeam(linkData.title)){
 
-            var goal = { id : linkData.id,
-                        title : linkData.title,
-                        url : linkData.url,
-                        timestamp : linkData.created_utc};
+            const goal = {  id : linkData.id,
+                            title : linkData.title,
+                            url : linkData.url,
+                            redditLink: `https://www.reddit.com${linkData.permalink}`,
+                            timestamp : linkData.created_utc
+                          }
             storeGoalFunction(goal, COMPETITION, competitionGoals, chatId)
           }
         }

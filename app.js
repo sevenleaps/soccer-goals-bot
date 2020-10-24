@@ -61,6 +61,6 @@ database.syncGoalsCache(cacheGoals)
 new CronJob('0 */1 * * * *', function() {
   console.log('Going to reddit to look for new goals');
   england.checkRedditForGoals(common.storeGoal);
-  germany.checkRedditForGoals(common.storeGoal);
-  wc2018.checkRedditForGoals(common.storeGoal);
+  // germany.checkRedditForGoals(common.storeGoal);
+  // wc2018.checkRedditForGoals(common.storeGoal);
 }, null, true, null);

@@ -60,8 +60,10 @@ var writeToFirebaseAndSendToChannel = (goal, channel, competition, goalDate) => 
   database.storeGoal(goal, competition, goalDate)
 
   const message = `*${goal.title}*
-  [reddit comments](${goal.redditLink})
   ${goal.url}
+
+
+  [Reddit comments](${goal.redditLink})
   `
 
   bot.sendMessage(channel, message, { parse_mode: 'Markdown' })
